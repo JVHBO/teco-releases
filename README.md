@@ -1,6 +1,12 @@
 # TECO! — jogo de bolinha de gude
 
-[Jogar TECO! no navegador](https://teco-gude-arcade.vercel.app/) · Teclado e mouse ou controle.
+[Jogar TECO! no navegador](https://jogarteco.art/) · Teclado e mouse ou controle.
+
+## Sala por código no site e no Windows
+
+Em **Online → Criar sala**, escolha de 2 a 4 lugares, a arena, a montagem, a regra e o tempero. Envie os seis dígitos aos amigos. Eles entram em **Online → Entrar com código**. O jogador 1 inicia a partida e mantém o jogo aberto enquanto a sala estiver em uso.
+
+No site, você pode jogar como visitante ou criar uma conta só com o nome. Para continuar em outro aparelho, abra sua conta e escolha **Vincular aparelho**. O convite de uso único expira em dez minutos.
 
 ## 1. Instalar no Windows
 
@@ -14,7 +20,7 @@ O jogo **se atualiza sozinho**. Não precisa baixar de novo quando sair versão 
 
 ## 2. Jogar online com amigos (pela Steam)
 
-O TECO! ainda não está na loja da Steam, então o online funciona assim por enquanto:
+Para testar o convite nativo da Steam e o matchmaking:
 
 1. Abra a **Steam** e entre na sua conta. Cada pessoa no seu PC, cada uma com a sua conta.
 2. Feche o TECO! se ele estiver aberto.
@@ -34,7 +40,7 @@ O TECO! ainda não está na loja da Steam, então o online funciona assim por en
 
 - **O antivírus reclamou:** é o mesmo motivo do aviso do Windows (jogo novo, sem assinatura). Pode liberar.
 - **"Versões diferentes do jogo":** os dois precisam estar na mesma versão. Abra e feche o jogo uma vez para ele se atualizar.
-- **O botão Online está apagado:** o jogo foi aberto sem a Steam. Feche e abra de novo pelo passo 3.
+- **As opções da Steam estão apagadas:** abra o jogo pelo passo 3 ou use a sala por código.
 
 ---
 

@@ -45,14 +45,35 @@ function validProgress(progress) {
 function profile(row) {
   return {id:row.id,name:row.name,revision:row.revision,progress:JSON.parse(row.progress)};
 }
+async function session(db,row,now) {
+  const token = random(32);
+  await db.batch([
+    db.prepare('DELETE FROM sessions WHERE hash IN (SELECT hash FROM sessions WHERE expires<=? LIMIT 16)').bind(now),
+    db.prepare('INSERT INTO sessions(hash,player,expires) VALUES(?,?,?)').bind(await digest(token),row.id,now+month)
+  ]);
+  return json(profile(row),200,{'Set-Cookie':cookie(token,month)});
+}
 async function handle(req, env) {
   const action = new URL(req.url).pathname.split('/').pop();
   const db = env.DB, now = Math.floor(Date.now()/1000);
   if (req.method !== 'GET' && !origins.has(req.headers.get('Origin'))) return json({},403);
-  if (req.method === 'POST' && (action === 'signup' || action === 'login')) {
+  if (req.method === 'POST' && ['signup','login','redeem'].includes(action)) {
     if (!(await env.AUTH_LIMIT.limit({key:req.headers.get('CF-Connecting-IP') || 'unknown'})).success) return json({},429);
-    const {name,proof} = await body(req);
-    if (typeof name !== 'string' || !/^[a-z0-9_]{3,24}$/.test(name) || typeof proof !== 'string' || !/^[0-9a-f]{64}$/.test(proof)) return json({},400);
+    const {name,proof,code} = await body(req);
+    if (typeof proof !== 'string' || !/^[0-9a-f]{64}$/.test(proof)) return json({},400);
+    if (action === 'redeem') {
+      if (typeof code !== 'string' || !/^[0-9a-f]{16}$/.test(code)) return json({},400);
+      const ticket = await digest(code);
+      const device = await digest(proof);
+      // Both operations see the same ticket. A simultaneous redemption can only win once.
+      const [,used] = await db.batch([
+        db.prepare('INSERT INTO devices(hash,player) SELECT ?,player FROM pairing WHERE hash=? AND expires>?').bind(device,ticket,now),
+        db.prepare('DELETE FROM pairing WHERE hash=? AND expires>? RETURNING player').bind(ticket,now)
+      ]);
+      if (!used.results.length) return json({},401);
+      return session(db,await db.prepare('SELECT * FROM players WHERE id=?').bind(used.results[0].player).first(),now);
+    }
+    if (typeof name !== 'string' || !/^[a-z0-9_]{3,24}$/.test(name)) return json({},400);
     let row;
     if (action === 'signup') {
       const salt = random(16);
@@ -61,14 +82,11 @@ async function handle(req, env) {
     } else {
       row = await db.prepare('SELECT * FROM players WHERE name=?').bind(name).first();
       const hash = await verifier(proof,row?.salt ?? '00000000000000000000000000000000');
-      if (!row || !crypto.subtle.timingSafeEqual(encoder.encode(hash),encoder.encode(row.verifier))) return json({},401);
+      if (!row) return json({},401);
+      if (!crypto.subtle.timingSafeEqual(encoder.encode(hash),encoder.encode(row.verifier)) &&
+          !await db.prepare('SELECT 1 FROM devices WHERE hash=? AND player=?').bind(await digest(proof),row.id).first()) return json({},401);
     }
-    const token = random(32);
-    await db.batch([
-      db.prepare('DELETE FROM sessions WHERE hash IN (SELECT hash FROM sessions WHERE expires<=? LIMIT 16)').bind(now),
-      db.prepare('INSERT INTO sessions(hash,player,expires) VALUES(?,?,?)').bind(await digest(token),row.id,now+month)
-    ]);
-    return json(profile(row),200,{'Set-Cookie':cookie(token,month)});
+    return session(db,row,now);
   }
   const token = req.headers.get('Cookie')?.match(/(?:^|;\s*)__Host-teco-session=([a-f0-9]{64})(?:;|$)/)?.[1];
   if (!token) return json({},401);
@@ -79,6 +97,11 @@ async function handle(req, env) {
   }
   const row = await db.prepare('SELECT p.id,p.name,p.progress,p.revision FROM sessions s JOIN players p ON s.player=p.id WHERE s.hash=? AND s.expires>?').bind(hash,now).first();
   if (!row) return json({},401);
+  if (req.method === 'POST' && action === 'pair') {
+    const code = random(8);
+    await db.prepare('INSERT INTO pairing(player,hash,expires) VALUES(?,?,?) ON CONFLICT(player) DO UPDATE SET hash=excluded.hash,expires=excluded.expires').bind(row.id,await digest(code),now+600).run();
+    return json({code});
+  }
   if (req.method === 'GET' && action === 'me') return json(profile(row));
   if (req.method === 'PUT' && action === 'save') {
     const {id,revision,progress}=await body(req);

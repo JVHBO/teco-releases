@@ -22,4 +22,5 @@
 #account-panel .account-actions button:first-child { background:#ffcc43; }
 #account-panel :is(.account-hint,#account-msg) { font-size:.86rem; }
 #account-panel #account-msg:empty { margin:0; }
+#pair-code { align-self:center; font:700 1rem/1.6 monospace; user-select:all; }
 @media(max-width:520px) { .header-end { flex-wrap:wrap; justify-content:flex-end; } .account-button {max-width:8em; overflow:hidden;text-overflow:ellipsis;} }

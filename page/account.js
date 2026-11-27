@@ -5,7 +5,7 @@ const message = document.querySelector('#account-msg');
 const conflictPanel = document.querySelector('#resolve-save');
 const hint = 'teco:login';
 const keys = ['teco-gude-save-v1','teco-colecao-v1','teco-idioma','teco-regiao'];
-let player, conflict, checkpoint, saving, timer, signup = false;
+let player, conflict, checkpoint, saving, timer;
 const prefix = id => id ? 'teco:conta:' + id + ':' : '';
 const read = id => Object.fromEntries(keys.map(k => [k,localStorage.getItem(prefix(id)+k)]).filter(([,v]) => v !== null));
 const same = (a,b) => keys.every(k => a?.[k] === b?.[k]);
@@ -26,12 +26,8 @@ async function request(action, method='GET', data, keepalive=false) {
   if (!response.ok) throw Object.assign(new Error('Conta indisponível'),{status:response.status});
   return response.json();
 }
-async function proof(name,password) {
-  const enc = new TextEncoder();
-  const source = await crypto.subtle.importKey('raw',enc.encode(password),'PBKDF2',false,['deriveBits']);
-  const bits = await crypto.subtle.deriveBits({name:'PBKDF2',hash:'SHA-256',salt:enc.encode('TECO-login-v1/'+name),iterations:600000},source,256);
-  return Array.from(new Uint8Array(bits),b => b.toString(16).padStart(2,'0')).join('');
-}
+const deviceKey = name => 'teco:device:'+name;
+const newKey = () => Array.from(crypto.getRandomValues(new Uint8Array(32)),b=>b.toString(16).padStart(2,'0')).join('');
 function setConflict(remote) {
   conflict = remote;
   conflictPanel.hidden = !remote;
@@ -46,6 +42,7 @@ function attach(remote) {
   try { checkpoint = JSON.parse(localStorage.getItem(prefix(player.id)+'sync')); } catch { checkpoint=null; }
   const local = read(player.id);
   form.hidden=true;
+  document.querySelector('#pair-form').hidden=true;
   document.querySelector('#connected').hidden=false;
   button.textContent=remote.name;
   document.querySelector('#player-info').textContent='Jogando como '+remote.name;
@@ -60,8 +57,8 @@ function attach(remote) {
 function failure(e) {
   message.textContent = e.status===413 ? 'O progresso excedeu o limite de sincronização. A cópia local está salva.' :
     e.status===429 ? 'Muitas tentativas. Aguarde um minuto.' :
-    e.status===401 ? 'Confira o nome e a senha ou entre novamente.' :
-    e.status===409 ? 'Esse nome de jogador já está em uso.' : 'Falha de conexão. Seu progresso local está salvo. Tente novamente.';
+    e.status===401 ? 'A autorização expirou. Gere um novo código no aparelho que já tem a conta.' :
+    e.status===409 ? 'Esse nome já tem conta. Se for sua, escolha “Já jogo em outro aparelho”.' : 'Falha de conexão. Seu progresso local está salvo. Tente novamente.';
   if (player) button.textContent = 'Revisar conta';
 }
 async function sync() {
@@ -117,31 +114,58 @@ window.addEventListener('storage',e=>{
 window.addEventListener('online',()=>{if(unavailable) location.reload(); else schedule();});
 document.addEventListener('visibilitychange',()=>{if(document.hidden) sync().catch(()=>{});});
 button.onclick=async()=>{await ready;panel.showModal();};
-function mode(create) {
-  signup=create;
-  document.querySelector('#submit-account').textContent=create?'Criar conta':'Entrar';
-  document.querySelector('#toggle-signup').textContent=create?'Já tenho conta':'Criar conta';
-  document.querySelector('#signup-hint').hidden=!create;
-  document.querySelector('#import-guest').hidden=!create || !Object.keys(read('')).length;
-  form.elements.password.minLength=create?10:1;
-  form.elements.password.autocomplete=create?'new-password':'current-password';
-  message.textContent='';
-}
-document.querySelector('#toggle-signup').onclick=()=>mode(!signup);
+button.disabled=false;
+const pairForm=document.querySelector('#pair-form');
+document.querySelector('#import-guest').hidden=!Object.keys(read('')).length;
+document.querySelector('#open-pair').onclick=()=>{form.hidden=true;pairForm.hidden=false;message.textContent='';pairForm.elements.code.focus();};
+document.querySelector('#pair-back').onclick=()=>{pairForm.hidden=true;form.hidden=false;message.textContent='';form.elements.player.focus();};
 form.onsubmit=async e=>{
   e.preventDefault();
   const submit=document.querySelector('#submit-account'); if(submit.disabled)return;
   submit.disabled=true;
   const name=form.elements.player.value.trim().toLowerCase();
-  const create=signup;
-  const guest=create && form.elements.importGuest.checked ? read('') : {};
+  const guest=form.elements.importGuest.checked ? read('') : {};
   try {
-    const remote=await request(create?'signup':'login','POST',{name,proof:await proof(name,form.elements.password.value)});
-    form.elements.password.value='';
+    let key=localStorage.getItem(deviceKey(name));
+    let remote, created=false;
+    if(key) {
+      try { remote=await request('login','POST',{name,proof:key}); } catch(e){if(e.status!==401)throw e;}
+    } else key=newKey();
+    if(!remote) {
+      // Keep the same credential if registration succeeds but its response is lost.
+      localStorage.setItem(deviceKey(name),key);
+      remote=await request('signup','POST',{name,proof:key}); created=true;
+    }
     attach(remote);
-    if(create && Object.keys(guest).length){apply(remote.id,guest);await sync();}
+    if(created && Object.keys(guest).length){apply(remote.id,guest);await sync();}
     if(!conflict) location.reload();
   } catch(e) {failure(e);} finally {submit.disabled=false;}
+};
+pairForm.onsubmit=async e=>{
+  e.preventDefault();
+  const submit=pairForm.querySelector('button');
+  if(submit.disabled)return;
+  const code=pairForm.elements.code.value.toLowerCase().replace(/[-\s]/g,'');
+  if(!/^[a-f0-9]{16}$/.test(code)){message.textContent='Confira os 16 caracteres do código.';return;}
+  submit.disabled=true;
+  try {
+    const key=newKey();
+    const remote=await request('redeem','POST',{code,proof:key});
+    localStorage.setItem(deviceKey(remote.name),key);
+    attach(remote); if(!conflict)location.reload();
+  } catch(err){failure(err);} finally {submit.disabled=false;}
+};
+document.querySelector('#new-pair').onclick=async()=>{
+  try {
+    await sync(); if(conflict)return;
+    const {code}=await request('pair','POST',{});
+    document.querySelector('#pair-code').textContent=code.toUpperCase().match(/.{4}/g).join('-');
+    document.querySelector('#pair-ticket').hidden=false;
+  } catch(e){failure(e);}
+};
+document.querySelector('#copy-pair').onclick=async()=>{
+  try {await navigator.clipboard.writeText(document.querySelector('#pair-code').textContent);message.textContent='Código copiado.';}
+  catch {message.textContent='Selecione e copie o código acima.';}
 };
 document.querySelector('#sync-now').onclick=async()=>{
   try {
