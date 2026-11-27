@@ -24,23 +24,27 @@ play.addEventListener('click', () => {
   }
   const timer = window.setTimeout(failed, 30000);
   frame.addEventListener('error', failed, {once:true});
-  frame.addEventListener('load', async () => {
+  async function mostrarQuandoPronto() {
     const end = Date.now() + 25000;
     while (frame.isConnected && Date.now() < end) {
-      if (frame.contentDocument?.querySelector('.screen-title [data-action="play"]')) {
+      if (frame.contentDocument?.querySelector('#first-language:not(.hidden), .screen-title [data-action="play"], .screen-options')) {
         window.clearTimeout(timer);
-        const version = frame.contentDocument.querySelector('.footnote')?.textContent?.match(/v\d+\.\d+\.\d+/)?.[0];
+        const version = frame.contentDocument.querySelector('meta[name="application-version"]')?.content
+          || frame.contentDocument.querySelector('.footnote')?.textContent?.match(/v\d+\.\d+\.\d+/)?.[0];
         if (version) document.querySelector('.version').textContent = version;
         launcher.hidden = true;
         report('');
-        frame.focus();
+        const choice = frame.contentDocument.querySelector('#first-language:not(.hidden) button:focus');
+        if (choice) choice.focus();
+        else frame.focus();
         return;
       }
       await new Promise(resolve => setTimeout(resolve, 120));
     }
     if (frame.isConnected) failed();
-  }, {once:true});
+  }
   stage.prepend(frame);
+  void mostrarQuandoPronto();
 });
 const full = document.querySelector('#full');
 if (!document.fullscreenEnabled) full.hidden = true;
