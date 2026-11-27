@@ -13,7 +13,7 @@ play.addEventListener('click', () => {
   frame.title = 'TECO! Bolinha de Gude Arcade';
   frame.allow = 'fullscreen; autoplay; gamepad';
   frame.allowFullscreen = true;
-  frame.src = 'game/index.html?v=__RELEASE__';
+  frame.src = 'jogar';
   function failed() {
     window.clearTimeout(timer);
     frame.remove();
@@ -29,6 +29,8 @@ play.addEventListener('click', () => {
     while (frame.isConnected && Date.now() < end) {
       if (frame.contentDocument?.querySelector('.screen-title [data-action="play"]')) {
         window.clearTimeout(timer);
+        const version = frame.contentDocument.querySelector('.footnote')?.textContent?.match(/v\d+\.\d+\.\d+/)?.[0];
+        if (version) document.querySelector('.version').textContent = version;
         launcher.hidden = true;
         report('');
         frame.focus();

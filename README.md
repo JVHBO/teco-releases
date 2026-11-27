@@ -1,6 +1,6 @@
 # TECO! — jogo de bolinha de gude
 
-[Jogar TECO! no navegador](https://jvhbo.github.io/teco-releases/) · Teclado e mouse ou controle.
+[Jogar TECO! no navegador](https://teco-gude-arcade.vercel.app/) · Teclado e mouse ou controle.
 
 ## 1. Instalar no Windows
 
@@ -38,4 +38,4 @@ O TECO! ainda não está na loja da Steam, então o online funciona assim por en
 
 ---
 
-A página publica automaticamente o jogo da última release estável do GitHub. O instalador é para Windows de 64 bits.
+Ao abrir uma nova partida, o site carrega o arquivo TECO-jogar.html da última release estável do GitHub. A troca costuma aparecer em até três minutos com a conexão disponível. O instalador é para Windows de 64 bits.
