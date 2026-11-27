@@ -10,3 +10,4 @@
 .steam-status { color: var(--green); font-size: 14px; white-space: nowrap; }
 @media (min-width: 801px) and (max-width: 960px) { .bar { gap: 20px; } .bar nav { gap: 18px; } }
 @media (max-width: 580px) { .bar, .header-end { gap: 8px; } .steam-status { font-size: 12px; } }
+@media (max-width: 360px) { .creator-link span { display: none; } .wordmark { gap: 4px; } }
