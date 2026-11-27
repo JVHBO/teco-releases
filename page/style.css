@@ -11,3 +11,15 @@
 @media (min-width: 801px) and (max-width: 960px) { .bar { gap: 20px; } .bar nav { gap: 18px; } }
 @media (max-width: 580px) { .bar, .header-end { gap: 8px; } .steam-status { font-size: 12px; } }
 @media (max-width: 360px) { .creator-link span { display: none; } .wordmark { gap: 4px; } }
+.stage iframe.preparing { position:absolute; inset:0; opacity:0; pointer-events:none; }
+.account-button { font:inherit; cursor:pointer; }
+#account-panel { width:min(24rem,92vw); padding:1.35rem; overflow:auto; }
+#account-panel h2 { margin:0 2rem 1.1rem 0; }
+#account-panel label { display:block; margin:.7rem 0; font-weight:700; }
+#account-panel label input:not([type=checkbox]) { display:block; width:100%; padding:.65rem; margin-top:.3rem; border:1px solid #a1a798; border-radius:.5rem; font:inherit; }
+#account-panel .account-actions { display:flex; gap:.5rem; flex-wrap:wrap; margin-top:.9rem; }
+#account-panel .account-actions button { position:static; width:auto; height:auto; min-height:2.5rem; padding:.45rem .85rem; font:700 .95rem system-ui; }
+#account-panel .account-actions button:first-child { background:#ffcc43; }
+#account-panel :is(.account-hint,#account-msg) { font-size:.86rem; }
+#account-panel #account-msg:empty { margin:0; }
+@media(max-width:520px) { .header-end { flex-wrap:wrap; justify-content:flex-end; } .account-button {max-width:8em; overflow:hidden;text-overflow:ellipsis;} }

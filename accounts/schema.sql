@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS players (
+  id TEXT PRIMARY KEY, name TEXT NOT NULL UNIQUE, salt TEXT NOT NULL, verifier TEXT NOT NULL,
+  revision INTEGER NOT NULL DEFAULT 0, progress TEXT NOT NULL DEFAULT '{}'
+);
+CREATE TABLE IF NOT EXISTS sessions (
+  hash TEXT PRIMARY KEY, player TEXT NOT NULL REFERENCES players(id), expires INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS sessions_expiry ON sessions(expires);

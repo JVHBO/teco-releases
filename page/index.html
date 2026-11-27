@@ -5,12 +5,12 @@
 <title>TECO! — Bolinha de Gude Arcade | Jogar</title>
 <meta name="description" content="Jogue bolinha de gude em 3D direto no navegador. Entre na roda, dispute rachas e comece sua carreira.">
 <meta name="theme-color" content="#f7f5ed"><link rel="icon" href="media/gude.png">
-<link rel="stylesheet" href="style.css"><script defer src="site.js"></script>
+<link rel="stylesheet" href="style.css"><script type="module" src="site.js"></script>
 </head>
 <body><header class="top"><div class="bar">
 <a class="wordmark" href="#jogo" aria-label="TECO! Início"><img src="media/gude.png" width="42" height="42" alt="">TECO!</a>
 <nav aria-label="Navegação"><a href="#jogo">Jogar</a><a href="#arenas">Arenas</a><a href="#controles">Controles</a><a href="#avisos">Avisos</a></nav>
-<div class="header-end"><span class="steam-status">Em breve na Steam</span><a class="creator-link" href="#criador">Criador <span aria-hidden="true">↘</span></a></div>
+<div class="header-end"><span class="steam-status">Em breve na Steam</span><button class="creator-link account-button" id="account" type="button">Entrar</button><a class="creator-link" href="#criador">Criador <span aria-hidden="true">↘</span></a></div>
 </div></header>
 <main><div class="layout">
 <section class="player" id="jogo" aria-label="Jogar TECO!">
@@ -30,8 +30,22 @@
 <div class="info"><section><h2>Na roda de giz</h2><p>Mire da risca, carregue o teco e tente tirar as bolinhas da roda. Jogue um racha contra a CPU, acerte os três buracos da Búlica ou monte sua coleção na Carreira.</p></section>
 <section id="controles"><h2>Como jogar</h2><dl><div><dt><kbd>A</kbd> <kbd>D</kbd></dt><dd>Mirar</dd></div><div><dt><kbd>Espaço</kbd></dt><dd>Segurar e soltar para atirar</dd></div><div><dt><kbd>C</kbd></dt><dd>Mudar a câmera</dd></div></dl>
 <p class="fine">Use teclado e mouse ou controle.</p></section></div>
-<section id="avisos" class="notices"><h2>Avisos</h2><p>O TECO está em fase inicial. A versão mais recente entra quando você abre o jogo. As partidas e a coleção ficam salvas neste navegador e dispositivo. Limpar os dados do site apaga esse progresso.</p><p>Carreira, Búlica e rachas contra a CPU rodam aqui. O multiplayer pela Steam usa o jogo para Windows.</p></section>
+<section id="avisos" class="notices"><h2>Avisos</h2><p>Como visitante, sua coleção fica neste navegador. Entre na sua conta para levar a coleção, as estatísticas e as preferências para outro aparelho.</p><p>Carreira, Búlica e rachas contra a CPU rodam aqui. O multiplayer pela Steam usa o jogo para Windows.</p></section>
 <footer id="criador"><div><h2>Criado por joaovitorhbo</h2><p>Novidades do TECO e contato com o criador.</p></div><div class="social"><a href="https://x.com/joaovitor_hbo" rel="me noopener noreferrer" target="_blank">X · @joaovitor_hbo ↗</a></div></footer>
 </main>
 <dialog id="gallery"><form method="dialog"><button aria-label="Fechar imagem" autofocus>×</button></form><img id="large" alt=""><h2 id="caption"></h2></dialog>
+<dialog id="account-panel" aria-labelledby="account-title">
+  <form method="dialog" class="dialog-close"><button aria-label="Fechar">×</button></form>
+  <h2 id="account-title">Conta do TECO</h2>
+  <form id="credentials">
+    <label>Nome de jogador<input name="player" autocomplete="username" required minlength="3" maxlength="24" pattern="[a-zA-Z0-9_]{3,24}" title="3 a 24 letras sem acento, números ou _"></label>
+    <label>Senha<input type="password" name="password" required maxlength="128" autocomplete="current-password"></label>
+    <label id="import-guest" hidden><input type="checkbox" name="importGuest" checked> Copiar meu progresso de visitante para esta conta</label>
+    <p class="account-hint" id="signup-hint" hidden>Use pelo menos 10 caracteres e guarde a senha para entrar em outro aparelho.</p>
+    <div class="account-actions"><button id="submit-account" type="submit">Entrar</button><button id="toggle-signup" type="button">Criar conta</button></div>
+  </form>
+  <div id="connected" hidden><p id="player-info"></p><div class="account-actions"><button type="button" id="sync-now">Sincronizar</button><button type="button" id="logout">Sair da conta</button></div></div>
+  <div id="resolve-save" hidden><p>Há progresso diferente neste aparelho e na conta. Escolha qual continuar usando.</p><div class="account-actions"><button id="use-cloud">Usar da conta</button><button id="use-local">Usar deste aparelho</button></div></div>
+  <p id="account-msg" role="status"></p>
+</dialog>
 </body></html>

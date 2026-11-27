@@ -1,0 +1,8 @@
+{
+  "name": "teco-player-profiles",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-11-01",
+  "workers_dev": true,
+  "d1_databases": [{ "binding": "DB", "database_name": "teco-player-profiles", "database_id": "40887a10-51bd-4375-9236-3e55d2b2e729" }],
+  "ratelimits": [{ "name": "AUTH_LIMIT", "namespace_id": "10083", "simple": { "limit": 12, "period": 60 } }]
+}

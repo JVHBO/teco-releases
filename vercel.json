@@ -4,5 +4,8 @@
   "installCommand": "",
   "buildCommand": "",
   "outputDirectory": "page",
-  "rewrites": [{ "source": "/jogar", "destination": "/api/jogar" }]
+  "rewrites": [
+    { "source": "/conta/:action", "destination": "https://teco-player-profiles.zoboomafoohbo.workers.dev/conta/:action" },
+    { "source": "/jogar", "destination": "/api/jogar" }
+  ]
 }
