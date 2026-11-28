@@ -24,3 +24,11 @@ CREATE TABLE IF NOT EXISTS leaderboard (
 CREATE INDEX IF NOT EXISTS leaderboard_cash ON leaderboard(cash DESC, marbles DESC, name ASC);
 CREATE INDEX IF NOT EXISTS leaderboard_marbles ON leaderboard(marbles DESC, cash DESC, name ASC);
 CREATE INDEX IF NOT EXISTS leaderboard_unique ON leaderboard(unique_marbles DESC, marbles DESC, cash DESC, name ASC);
+CREATE TABLE IF NOT EXISTS chat_messages (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  player TEXT NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  text TEXT NOT NULL,
+  created INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS chat_messages_id ON chat_messages(id DESC);

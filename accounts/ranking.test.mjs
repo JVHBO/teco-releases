@@ -171,4 +171,57 @@ test('Worker de contas: signup, save, backfill de antigos e GET /conta/ranking p
   assert.equal(rUnique.by, 'unique');
   assert.deepEqual(rUnique.items.map((x) => x.name), ['colecionador', 'veterano', 'rico_da_rua']);
   assert.equal(rUnique.me.rank, 3);
+
+  // 6. Chat global: visitante pode ler, mas só logado pode enviar; respeita anti-spam e since incremental
+  const anonPost = await worker.fetch(
+    new Request(`${ORIGIN}/conta/chat`, {
+      method: 'POST',
+      headers: { Origin: ORIGIN, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: 'oi visitante' }),
+    }),
+    env,
+  );
+  assert.equal(anonPost.status, 401);
+
+  const postA = await worker.fetch(
+    new Request(`${ORIGIN}/conta/chat`, {
+      method: 'POST',
+      headers: { Origin: ORIGIN, 'Content-Type': 'application/json', Cookie: cookieA },
+      body: JSON.stringify({ text: 'Bora jogar na sala 482910!' }),
+    }),
+    env,
+  );
+  assert.equal(postA.status, 201);
+  const msgA = (await postA.json()).item;
+  assert.equal(msgA.name, 'rico_da_rua');
+  assert.equal(msgA.text, 'Bora jogar na sala 482910!');
+
+  // Anti-spam imediato (mesmo segundo)
+  const spamA = await worker.fetch(
+    new Request(`${ORIGIN}/conta/chat`, {
+      method: 'POST',
+      headers: { Origin: ORIGIN, 'Content-Type': 'application/json', Cookie: cookieA },
+      body: JSON.stringify({ text: 'spam' }),
+    }),
+    env,
+  );
+  assert.equal(spamA.status, 429);
+
+  // Outro jogador posta normalmente
+  const postB = await worker.fetch(
+    new Request(`${ORIGIN}/conta/chat`, {
+      method: 'POST',
+      headers: { Origin: ORIGIN, 'Content-Type': 'application/json', Cookie: cookieB },
+      body: JSON.stringify({ text: 'To entrando!' }),
+    }),
+    env,
+  );
+  assert.equal(postB.status, 201);
+
+  const chatAll = await (await worker.fetch(new Request(`${ORIGIN}/conta/chat`), env)).json();
+  assert.deepEqual(chatAll.items.map((m) => m.name), ['rico_da_rua', 'colecionador']);
+
+  const chatSince = await (await worker.fetch(new Request(`${ORIGIN}/conta/chat?since=${msgA.id}`), env)).json();
+  assert.equal(chatSince.items.length, 1);
+  assert.equal(chatSince.items[0].name, 'colecionador');
 });

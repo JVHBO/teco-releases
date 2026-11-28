@@ -9,8 +9,30 @@ const random = size => hex(crypto.getRandomValues(new Uint8Array(size)));
 const digest = async value => hex(await crypto.subtle.digest('SHA-256', encoder.encode(value)));
 const cookie = (token, age) => cookieName + '=' + token + '; Path=/; Secure; HttpOnly; SameSite=Strict; Max-Age=' + age;
 let leaderboardReady = false;
+let chatReady = false;
+const CHAT_MAX_LEN = 220;
+const CHAT_COOLDOWN_SEC = 2;
+const CHAT_MAX_ROWS = 300;
 function json(body, status = 200, extra = {}) {
   return Response.json(body, {status, headers: {'Cache-Control':'private, no-store', 'Vary':'Cookie', ...extra}});
+}
+function sanitizeChatText(raw) {
+  if (typeof raw !== 'string') return '';
+  return raw.replace(/[\x00-\x1f\x7f]/g, ' ').replace(/\s+/g, ' ').trim();
+}
+async function ensureChat(db) {
+  if (chatReady) return;
+  await db.batch([
+    db.prepare(`CREATE TABLE IF NOT EXISTS chat_messages (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      player TEXT NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+      name TEXT NOT NULL,
+      text TEXT NOT NULL,
+      created INTEGER NOT NULL
+    )`),
+    db.prepare('CREATE INDEX IF NOT EXISTS chat_messages_id ON chat_messages(id DESC)'),
+  ]);
+  chatReady = true;
 }
 function extractStats(progress) {
   const raw = typeof progress === 'string'
@@ -194,6 +216,19 @@ async function handle(req, env) {
       token ? {} : { 'Cache-Control': 'public, max-age=15, stale-while-revalidate=30' },
     );
   }
+  if (req.method === 'GET' && action === 'chat') {
+    await ensureChat(db);
+    const rawSince = Number(url.searchParams.get('since') || url.searchParams.get('after') || 0);
+    const since = Number.isSafeInteger(rawSince) && rawSince > 0 ? rawSince : 0;
+    const rawLimit = Number(url.searchParams.get('limit') || 60);
+    const limit = Number.isFinite(rawLimit) ? Math.max(1, Math.min(100, Math.floor(rawLimit))) : 60;
+    const res = since > 0
+      ? await db.prepare('SELECT id, name, text, created FROM chat_messages WHERE id > ? ORDER BY id ASC LIMIT ?').bind(since, limit).all()
+      : await db.prepare('SELECT id, name, text, created FROM chat_messages ORDER BY id DESC LIMIT ?').bind(limit).all();
+    const rows = (res?.results ?? []).map((r) => ({ id: Number(r.id), name: r.name, text: r.text, created: Number(r.created) }));
+    const items = since > 0 ? rows : rows.slice().reverse();
+    return json({ items }, 200, { 'Cache-Control': 'no-store' });
+  }
   if (req.method === 'POST' && ['signup','login','redeem'].includes(action)) {
     if (!(await env.AUTH_LIMIT.limit({key:req.headers.get('CF-Connecting-IP') || 'unknown'})).success) return json({},429);
     const {name,proof,code} = await body(req);
@@ -240,6 +275,17 @@ async function handle(req, env) {
     await db.prepare('INSERT INTO pairing(player,hash,expires) VALUES(?,?,?) ON CONFLICT(player) DO UPDATE SET hash=excluded.hash,expires=excluded.expires').bind(row.id,await digest(code),now+600).run();
     return json({code});
   }
+  if (req.method === 'POST' && action === 'chat') {
+    await ensureChat(db);
+    const data = await body(req);
+    const text = sanitizeChatText(data.text ?? data.body);
+    if (!text || text.length > CHAT_MAX_LEN) return json({ error: 'invalid_message' }, 400);
+    const recent = await db.prepare('SELECT created FROM chat_messages WHERE player=? ORDER BY id DESC LIMIT 1').bind(row.id).first();
+    if (recent && now - Number(recent.created) < CHAT_COOLDOWN_SEC) return json({ error: 'cooldown' }, 429);
+    const inserted = await db.prepare('INSERT INTO chat_messages(player,name,text,created) VALUES(?,?,?,?) RETURNING id, name, text, created').bind(row.id, row.name, text, now).first();
+    await db.prepare('DELETE FROM chat_messages WHERE id NOT IN (SELECT id FROM chat_messages ORDER BY id DESC LIMIT ?)').bind(CHAT_MAX_ROWS).run();
+    return json({ item: { id: Number(inserted.id), name: inserted.name, text: inserted.text, created: Number(inserted.created) } }, 201);
+  }
   if (req.method === 'GET' && action === 'me') return json(profile(row));
   if (req.method === 'PUT' && action === 'save') {
     const {id,revision,progress}=await body(req);
@@ -252,7 +298,7 @@ async function handle(req, env) {
   }
   return json({},404);
 }
-export { extractStats, rankingOrder };
+export { extractStats, rankingOrder, sanitizeChatText };
 export default {async fetch(req,env) {
   try {return await handle(req,env);} catch (e) {
     if (e instanceof SyntaxError || ['formato','vazio'].includes(e.message)) return json({},400);

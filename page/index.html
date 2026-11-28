@@ -22,11 +22,40 @@
 <div class="player-bar"><div class="player-id"><img alt="" width="30" height="30" src="media/gude.png"><strong>TECO!</strong><span class="version">Web</span></div>
 <div class="actions"><a href="#controles">Controles</a><button id="full" aria-label="Alternar tela cheia" title="Tela cheia"><span aria-hidden="true">⛶</span></button></div></div>
 <p id="status" aria-live="polite" hidden></p></section>
-<aside id="arenas" aria-labelledby="arena-title"><h2 id="arena-title">As 7 arenas</h2>
-<button class="scene" data-arena="calcada"><img src="media/calcada.webp" alt=""><strong>Calçada</strong></button>
-<button class="scene" data-arena="quadra"><img src="media/quadra.webp" alt=""><strong>Quadra</strong></button>
-<button class="scene" data-arena="praca"><img src="media/praca.webp" alt=""><strong>Praça à Noite</strong></button>
-<p class="fine">E mais 4 no jogo: <strong>Terrão</strong>, <strong>Terreiro</strong> (Búlica), <strong>Rua de Pedra</strong> e <strong>Quintal de Cimento</strong>.</p></aside>
+<aside id="side-panel" class="side-panel" aria-label="Chat e arenas">
+  <div class="side-tabs" role="tablist" aria-label="Painel lateral">
+    <button type="button" class="stab active" role="tab" id="tab-chat" aria-controls="panel-chat" aria-selected="true" data-side-tab="chat">Chat da Roda <span id="chat-badge" class="chat-dot" aria-hidden="true"></span></button>
+    <button type="button" class="stab" role="tab" id="tab-arenas" aria-controls="panel-arenas" aria-selected="false" data-side-tab="arenas">As 7 arenas</button>
+  </div>
+  <section id="panel-chat" class="chat-panel" role="tabpanel" aria-labelledby="tab-chat">
+    <div class="chat-head">
+      <strong id="chat-title">Chat ao vivo</strong>
+      <span id="chat-status" class="chat-status">Conectando…</span>
+    </div>
+    <ol id="chat-list" class="chat-list" aria-live="polite" aria-label="Mensagens do chat">
+      <li class="chat-empty">Carregando mensagens…</li>
+    </ol>
+    <div id="chat-guest" class="chat-guest" hidden>
+      <span>Escolha um username para conversar e combinar salas por código.</span>
+      <button type="button" id="chat-set-user" class="chat-cta">Definir username</button>
+    </div>
+    <form id="chat-form" class="chat-form" hidden>
+      <label class="sr-only" for="chat-input">Mensagem no chat</label>
+      <input id="chat-input" name="text" type="text" maxlength="220" autocomplete="off" placeholder="Mande um recado ou código da sala…">
+      <button id="chat-send" type="submit">Enviar</button>
+    </form>
+    <div id="chat-meta" class="chat-meta">
+      <span id="chat-feedback" role="status"></span>
+      <span id="chat-count" hidden>0/220</span>
+    </div>
+  </section>
+  <section id="panel-arenas" class="arenas-panel" role="tabpanel" aria-labelledby="tab-arenas" hidden>
+    <button class="scene" data-arena="calcada"><img src="media/calcada.webp" alt=""><strong>Calçada</strong></button>
+    <button class="scene" data-arena="quadra"><img src="media/quadra.webp" alt=""><strong>Quadra</strong></button>
+    <button class="scene" data-arena="praca"><img src="media/praca.webp" alt=""><strong>Praça à Noite</strong></button>
+    <p class="fine">E mais 4 no jogo: <strong>Terrão</strong>, <strong>Terreiro</strong> (Búlica), <strong>Rua de Pedra</strong> e <strong>Quintal de Cimento</strong>.</p>
+  </section>
+</aside>
 </div>
 <section id="ranking" class="ranking-section" aria-labelledby="ranking-title">
   <div class="ranking-head">
