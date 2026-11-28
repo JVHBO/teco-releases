@@ -96,7 +96,10 @@ document.addEventListener('fullscreenchange', syncFullUi);
 async function enterFullscreen() {
   if (document.fullscreenEnabled && typeof stage.requestFullscreen === 'function') {
     try {
-      await stage.requestFullscreen();
+      await Promise.race([
+        stage.requestFullscreen(),
+        new Promise((resolve) => setTimeout(resolve, 250)),
+      ]);
       if (document.fullscreenElement === stage) {
         if (isCoarse()) {
           try { await screen.orientation?.lock?.('landscape'); } catch {}
@@ -105,7 +108,7 @@ async function enterFullscreen() {
         return;
       }
     } catch {
-      // iOS Safari e alguns navegadores mobile bloqueiam requestFullscreen em <div>; usa modo tela cheia CSS
+      // iOS Safari e webviews mobile bloqueiam requestFullscreen em <div>; usa modo tela cheia CSS
     }
   }
   setMobileFull(true);
