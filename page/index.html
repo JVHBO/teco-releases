@@ -9,7 +9,6 @@
 </head>
 <body><header class="top"><div class="bar">
 <a class="wordmark" href="#jogo" aria-label="TECO! Início"><img src="media/gude.png" width="42" height="42" alt="">TECO!</a>
-<nav aria-label="Navegação"><a href="#jogo">Jogar</a><a href="#ranking">Ranking</a><a href="#arenas">Arenas</a><a href="#controles">Controles</a><a href="#avisos">Avisos</a></nav>
 <div class="header-notes"><span class="shoutout">El Gato, seu gostoso!</span><span class="steam-status">Em breve na Steam</span></div>
 <div class="header-end"><button class="creator-link account-button" id="account" type="button" disabled>Definir username</button><a class="creator-link" href="#criador">Criador <span aria-hidden="true">↘</span></a></div>
 </div></header>
@@ -64,10 +63,115 @@
   </div>
   <p id="ranking-foot" class="fine ranking-foot"></p>
 </section>
-<div class="info"><section><h2>Na roda de giz</h2><p>Mire da risca, carregue o teco e tente tirar as bolinhas da roda. Jogue um racha contra a CPU, dispute salas online por código (com 6 regras, 4 temperos e revanche na mesma sala), acerte os três buracos da Búlica ou monte sua coleção na Carreira.</p></section>
-<section id="controles"><h2>Como jogar</h2><dl><div><dt><kbd>A</kbd> <kbd>D</kbd></dt><dd>Mirar</dd></div><div><dt><kbd>Q</kbd> <kbd>E</kbd></dt><dd>Andar na risca</dd></div><div><dt><kbd>W</kbd> <kbd>S</kbd></dt><dd>Efeito (puxada / seguida)</dd></div><div><dt><kbd>Espaço</kbd></dt><dd>Segurar e soltar para atirar</dd></div><div><dt><kbd>C</kbd></dt><dd>Mudar a câmera</dd></div><div><dt><kbd>H</kbd> / <kbd>L</kbd></dt><dd>Ajuda e Histórico</dd></div></dl>
-<p class="fine">Use teclado e mouse ou controle.</p></section></div>
-<section id="avisos" class="notices"><h2>Avisos</h2><p>Como visitante, sua coleção fica neste navegador. Crie uma conta pelo nome e use “Vincular aparelho” para levar a carreira, a coleção e as preferências com você.</p><p>Para jogar com amigos, abra Online e crie uma sala. Compartilhe os seis dígitos com quem joga no site ou no Windows. O anfitrião escolhe a arena, as regras e até quatro lugares — ao acabar a partida, todos podem continuar na mesma sala para revanche ou trocar as regras.</p></section>
+<section id="controles" class="controls-visual" aria-labelledby="controls-title">
+  <h2 id="controls-title">Controles</h2>
+  <div class="controls-grid">
+    <article class="ctrl-card">
+      <div class="ctrl-head">
+        <h3>Teclado &amp; Mouse</h3>
+        <span class="ctrl-tag">PC / Web</span>
+      </div>
+      <div class="ctrl-art" aria-hidden="true">
+        <svg viewBox="0 0 360 142" class="ctrl-svg">
+          <!-- Base do teclado -->
+          <rect x="6" y="8" width="246" height="126" rx="16" fill="#23362f" stroke="#16241f" stroke-width="3"/>
+          <rect x="14" y="16" width="230" height="110" rx="11" fill="#2d453c"/>
+          <!-- Fileira Q W E -->
+          <g font-family="Nunito,system-ui,sans-serif" font-weight="900" font-size="13" text-anchor="middle">
+            <rect x="26" y="26" width="34" height="30" rx="7" fill="#7fd3ff" stroke="#182a23" stroke-width="2"/>
+            <text x="43" y="46" fill="#13221d">Q</text>
+            <rect x="66" y="26" width="34" height="30" rx="7" fill="#98f0b1" stroke="#182a23" stroke-width="2"/>
+            <text x="83" y="46" fill="#13221d">W</text>
+            <rect x="106" y="26" width="34" height="30" rx="7" fill="#7fd3ff" stroke="#182a23" stroke-width="2"/>
+            <text x="123" y="46" fill="#13221d">E</text>
+            <!-- C câmera / H ajuda -->
+            <rect x="156" y="26" width="34" height="30" rx="7" fill="#f7f4e9" stroke="#182a23" stroke-width="2"/>
+            <text x="173" y="46" fill="#1b2622">C</text>
+            <rect x="196" y="26" width="34" height="30" rx="7" fill="#f7f4e9" stroke="#182a23" stroke-width="2"/>
+            <text x="213" y="46" fill="#1b2622">H</text>
+            <!-- Fileira A S D -->
+            <rect x="34" y="62" width="34" height="30" rx="7" fill="#ffcf43" stroke="#182a23" stroke-width="2"/>
+            <text x="51" y="82" fill="#211806">A</text>
+            <rect x="74" y="62" width="34" height="30" rx="7" fill="#98f0b1" stroke="#182a23" stroke-width="2"/>
+            <text x="91" y="82" fill="#13221d">S</text>
+            <rect x="114" y="62" width="34" height="30" rx="7" fill="#ffcf43" stroke="#182a23" stroke-width="2"/>
+            <text x="131" y="82" fill="#211806">D</text>
+            <!-- 1 2 3 poderes -->
+            <rect x="156" y="62" width="74" height="30" rx="7" fill="#d9c4ff" stroke="#182a23" stroke-width="2"/>
+            <text x="193" y="82" fill="#22143d">1 · 2 · 3</text>
+            <!-- Barra de Espaço -->
+            <rect x="44" y="97" width="168" height="22" rx="7" fill="#ff9e44" stroke="#182a23" stroke-width="2"/>
+            <text x="128" y="112" font-size="11" fill="#241304">ESPAÇO — FORÇA E TECO</text>
+          </g>
+          <!-- Mouse ao lado -->
+          <rect x="272" y="22" width="76" height="106" rx="34" fill="#fffdf7" stroke="#22362e" stroke-width="3"/>
+          <path d="M273 62 H347" stroke="#c9c6b8" stroke-width="2.5"/>
+          <path d="M310 23 V62" stroke="#c9c6b8" stroke-width="2.5"/>
+          <path d="M274 58 C274 36 289 24 309 24 V60 H274 Z" fill="#ffcf43" opacity=".88"/>
+          <rect x="305" y="34" width="10" height="19" rx="5" fill="#29493c"/>
+          <text x="310" y="95" font-family="Nunito,system-ui,sans-serif" font-weight="900" font-size="10.5" text-anchor="middle" fill="#29493c">MIRAR</text>
+          <text x="310" y="109" font-family="Nunito,system-ui,sans-serif" font-weight="800" font-size="9.5" text-anchor="middle" fill="#637067">&amp; ATIRAR</text>
+        </svg>
+      </div>
+      <div class="ctrl-legend">
+        <span><i class="swatch" style="--sw:#ffcf43"></i><strong>A / D / Mouse</strong> Mirar</span>
+        <span><i class="swatch" style="--sw:#ff9e44"></i><strong>Espaço / Clique</strong> Atirar</span>
+        <span><i class="swatch" style="--sw:#7fd3ff"></i><strong>Q / E</strong> Andar</span>
+        <span><i class="swatch" style="--sw:#98f0b1"></i><strong>W / S</strong> Efeito</span>
+        <span><i class="swatch" style="--sw:#d9c4ff"></i><strong>1 · 2 · 3</strong> Poderes</span>
+        <span><i class="swatch" style="--sw:#e5e1d3"></i><strong>C / H</strong> Câmera / Ajuda</span>
+      </div>
+    </article>
+
+    <article class="ctrl-card">
+      <div class="ctrl-head">
+        <h3>Controle</h3>
+        <span class="ctrl-tag">Xbox / PlayStation</span>
+      </div>
+      <div class="ctrl-art" aria-hidden="true">
+        <svg viewBox="0 0 360 142" class="ctrl-svg">
+          <!-- Ombros LB / RB -->
+          <rect x="64" y="16" width="66" height="18" rx="9" fill="#7fd3ff" stroke="#182a23" stroke-width="2.5"/>
+          <rect x="230" y="16" width="66" height="18" rx="9" fill="#7fd3ff" stroke="#182a23" stroke-width="2.5"/>
+          <g font-family="Nunito,system-ui,sans-serif" font-weight="900" font-size="10" text-anchor="middle" fill="#13221d">
+            <text x="97" y="29">LB</text>
+            <text x="263" y="29">RB</text>
+          </g>
+          <!-- Corpo do controle -->
+          <path d="M74 30 H286 C312 30 328 52 332 82 L338 114 C340 128 327 137 314 132 L276 112 C264 106 250 104 236 104 H124 C110 104 96 106 84 112 L46 132 C33 137 20 128 22 114 L28 82 C32 52 48 30 74 30 Z" fill="#243831" stroke="#16241f" stroke-width="3.5"/>
+          <!-- Analógico esquerdo LS -->
+          <circle cx="96" cy="64" r="20" fill="#182822" stroke="#ffcf43" stroke-width="3"/>
+          <circle cx="96" cy="64" r="12" fill="#ffcf43"/>
+          <text x="96" y="68" font-family="Nunito,system-ui,sans-serif" font-weight="900" font-size="11" text-anchor="middle" fill="#211806">LS</text>
+          <!-- D-Pad -->
+          <path d="M138 69 H148 V59 H158 V69 H168 V79 H158 V89 H148 V79 H138 Z" fill="#98f0b1" stroke="#16241f" stroke-width="2"/>
+          <!-- Analógico direito RS -->
+          <circle cx="212" cy="80" r="15" fill="#182822" stroke="#a6b5ae" stroke-width="2.5"/>
+          <circle cx="212" cy="80" r="8" fill="#4e635b"/>
+          <!-- Botões ABXY -->
+          <g font-family="Nunito,system-ui,sans-serif" font-weight="900" font-size="11" text-anchor="middle">
+            <circle cx="268" cy="48" r="11" fill="#ffd23f" stroke="#16241f" stroke-width="2"/>
+            <text x="268" y="52" fill="#241904">Y</text>
+            <circle cx="247" cy="66" r="11" fill="#5da9ff" stroke="#16241f" stroke-width="2"/>
+            <text x="247" y="70" fill="#fff">X</text>
+            <circle cx="289" cy="66" r="11" fill="#ff6b78" stroke="#16241f" stroke-width="2"/>
+            <text x="289" y="70" fill="#fff">B</text>
+            <circle cx="268" cy="84" r="12.5" fill="#52d67a" stroke="#fff" stroke-width="2.2"/>
+            <text x="268" y="88" fill="#0d2a16">A</text>
+          </g>
+        </svg>
+      </div>
+      <div class="ctrl-legend">
+        <span><i class="swatch" style="--sw:#ffcf43"></i><strong>LS</strong> Mirar</span>
+        <span><i class="swatch" style="--sw:#52d67a"></i><strong>A</strong> Segurar e atirar</span>
+        <span><i class="swatch" style="--sw:#7fd3ff"></i><strong>LB / RB</strong> Andar</span>
+        <span><i class="swatch" style="--sw:#98f0b1"></i><strong>D-Pad ↑↓</strong> Efeito</span>
+        <span><i class="swatch" style="--sw:#ffd23f"></i><strong>Y</strong> Câmera</span>
+        <span><i class="swatch" style="--sw:#5da9ff"></i><strong>X / Y / B</strong> Poderes</span>
+      </div>
+    </article>
+  </div>
+</section>
 <footer id="criador"><div><h2>Criado por joaovitorhbo</h2><p>Novidades do TECO e contato com o criador.</p></div><div class="social"><a href="https://x.com/joaovitor_hbo" rel="me noopener noreferrer" target="_blank">X · @joaovitor_hbo ↗</a></div></footer>
 </main>
 <dialog id="gallery"><form method="dialog"><button aria-label="Fechar imagem" autofocus>×</button></form><img id="large" alt=""><h2 id="caption"></h2></dialog>
