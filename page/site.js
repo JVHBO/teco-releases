@@ -1,5 +1,6 @@
 import {gameAccount, gameAccountName} from './account.js';
 import './ranking.js';
+import './chat.js';
 const stage = document.querySelector('#stage');
 const launcher = document.querySelector('#launch');
 const play = document.querySelector('#play');
