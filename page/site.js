@@ -97,11 +97,13 @@ async function enterFullscreen() {
   if (document.fullscreenEnabled && typeof stage.requestFullscreen === 'function') {
     try {
       await stage.requestFullscreen();
-      if (isCoarse()) {
-        try { await screen.orientation?.lock?.('landscape'); } catch {}
+      if (document.fullscreenElement === stage) {
+        if (isCoarse()) {
+          try { await screen.orientation?.lock?.('landscape'); } catch {}
+        }
+        syncFullUi();
+        return;
       }
-      syncFullUi();
-      return;
     } catch {
       // iOS Safari e alguns navegadores mobile bloqueiam requestFullscreen em <div>; usa modo tela cheia CSS
     }
