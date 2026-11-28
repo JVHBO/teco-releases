@@ -4,8 +4,12 @@ const form = document.querySelector('#credentials');
 const message = document.querySelector('#account-msg');
 const conflictPanel = document.querySelector('#resolve-save');
 const hint = 'teco:login';
+const welcomeKey = 'teco:welcome-dismissed';
 const keys = ['teco-gude-save-v1','teco-colecao-v1','teco-idioma','teco-regiao'];
 let player, conflict, checkpoint, saving, timer;
+const titleEl = document.querySelector('#account-title');
+const skipBtn = document.querySelector('#skip-account');
+const notify = () => window.dispatchEvent(new CustomEvent('teco:account-changed'));
 const prefix = id => id ? 'teco:conta:' + id + ':' : '';
 const read = id => Object.fromEntries(keys.map(k => [k,localStorage.getItem(prefix(id)+k)]).filter(([,v]) => v !== null));
 const same = (a,b) => keys.every(k => a?.[k] === b?.[k]);
@@ -39,20 +43,23 @@ function setConflict(remote) {
 function attach(remote) {
   player = {id:remote.id,name:remote.name};
   localStorage.setItem(hint,remote.id);
+  try { sessionStorage.removeItem(welcomeKey); } catch {}
   try { checkpoint = JSON.parse(localStorage.getItem(prefix(player.id)+'sync')); } catch { checkpoint=null; }
   const local = read(player.id);
   form.hidden=true;
   document.querySelector('#pair-form').hidden=true;
   document.querySelector('#connected').hidden=false;
-  button.textContent=remote.name;
-  document.querySelector('#player-info').textContent='Jogando como '+remote.name;
+  if (titleEl) titleEl.textContent = 'Conta do TECO';
+  button.textContent='@' + remote.name;
+  document.querySelector('#player-info').textContent='Jogando como @'+remote.name;
   const unsynced = checkpoint ? !same(local,checkpoint.progress) : Object.keys(local).length > 0;
   if (unsynced && checkpoint?.revision !== remote.revision && !same(local,remote.progress)) {
-    setConflict(remote); return;
+    setConflict(remote); notify(); return;
   }
   if (!checkpoint || same(local,checkpoint.progress) || same(local,remote.progress)) {
     apply(player.id,remote.progress); mark(remote.revision,remote.progress);
   }
+  notify();
 }
 function failure(e) {
   message.textContent = e.status===413 ? 'O progresso excedeu o limite de sincronização. A cópia local está salva.' :
@@ -69,7 +76,8 @@ async function sync() {
   saving = (async () => {
     try {
       const next=await request('save','PUT',{id:player.id,revision:checkpoint.revision,progress:local});
-      mark(next.revision,local); button.textContent=player.name; message.textContent='Progresso sincronizado.';
+      mark(next.revision,local); button.textContent='@'+player.name; message.textContent='Progresso sincronizado.';
+      notify();
     } catch(e) {
       if(e.status===409) {
         const remote=await request('me');
@@ -91,7 +99,48 @@ async function restore() {
     else {unavailable=true; failure(e);}
   }
 }
-export const ready = restore();
+export const ready = restore().finally(() => {
+  if (player || unavailable) return;
+  let dismissed = false;
+  try { dismissed = !!sessionStorage.getItem(welcomeKey); } catch {}
+  if (!dismissed && !panel.open) {
+    setTimeout(() => {
+      if (!player && !panel.open) openAccountModal();
+    }, 260);
+  }
+});
+export function openAccountModal() {
+  if (!player) {
+    if (titleEl) titleEl.textContent = 'Escolha seu username';
+    form.hidden = false;
+    document.querySelector('#pair-form').hidden = true;
+    document.querySelector('#connected').hidden = true;
+    document.querySelector('#import-guest').hidden = !Object.keys(read('')).length;
+  }
+  if (!panel.open) panel.showModal();
+  if (!player) form.elements.player?.focus();
+}
+export function localPlayerStats() {
+  const raw = localStorage.getItem(prefix(player?.id ?? '') + 'teco-colecao-v1');
+  if (!raw) return { cash: 0, marbles: 0, unique: 0 };
+  try {
+    const col = JSON.parse(raw);
+    const cash = Math.max(0, Math.floor(Number(col?.grana) || 0));
+    let marbles = 0, unique = 0;
+    if (col?.itens && typeof col.itens === 'object') {
+      for (const v of Object.values(col.itens)) {
+        const q = Number(v);
+        if (Number.isInteger(q) && q > 0) { marbles += q; unique++; }
+      }
+    }
+    return { cash, marbles, unique };
+  } catch {
+    return { cash: 0, marbles: 0, unique: 0 };
+  }
+}
+export function gameAccountName() {
+  return player?.name ?? '';
+}
 export async function gameAccount(starting) {
   await ready;
   if(unavailable) throw Error('A conta está offline. Recarregue para tentar novamente.');
@@ -113,8 +162,11 @@ window.addEventListener('storage',e=>{
 });
 window.addEventListener('online',()=>{if(unavailable) location.reload(); else schedule();});
 document.addEventListener('visibilitychange',()=>{if(document.hidden) sync().catch(()=>{});});
-button.onclick=async()=>{await ready;panel.showModal();};
+button.onclick=async()=>{await ready;openAccountModal();};
 button.disabled=false;
+const dismissWelcome = () => { try { sessionStorage.setItem(welcomeKey, '1'); } catch {} };
+if (skipBtn) skipBtn.onclick = () => { dismissWelcome(); panel.close(); };
+panel.addEventListener('close', () => { if (!player) dismissWelcome(); });
 const pairForm=document.querySelector('#pair-form');
 document.querySelector('#import-guest').hidden=!Object.keys(read('')).length;
 document.querySelector('#open-pair').onclick=()=>{form.hidden=true;pairForm.hidden=false;message.textContent='';pairForm.elements.code.focus();};

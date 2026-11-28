@@ -1,4 +1,5 @@
-import {gameAccount} from './account.js';
+import {gameAccount, gameAccountName} from './account.js';
+import './ranking.js';
 const stage = document.querySelector('#stage');
 const launcher = document.querySelector('#launch');
 const play = document.querySelector('#play');
@@ -18,7 +19,12 @@ async function openGame(previous) {
   frame.allow = 'fullscreen; autoplay; gamepad';
   frame.allowFullscreen = true;
   frame.dataset.tecoHost = '1';
-  frame.src = account ? 'jogar?conta='+encodeURIComponent(account) : 'jogar';
+  const params = new URLSearchParams();
+  if (account) params.set('conta', account);
+  const nome = gameAccountName();
+  if (nome) params.set('nome', nome);
+  const qs = params.toString();
+  frame.src = qs ? 'jogar?' + qs : 'jogar';
   if(previous) {frame.classList.add('preparing'); previous.inert=true;}
   function failed() {
     window.clearTimeout(timer);

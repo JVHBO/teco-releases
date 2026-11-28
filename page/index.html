@@ -9,8 +9,9 @@
 </head>
 <body><header class="top"><div class="bar">
 <a class="wordmark" href="#jogo" aria-label="TECO! Início"><img src="media/gude.png" width="42" height="42" alt="">TECO!</a>
-<nav aria-label="Navegação"><a href="#jogo">Jogar</a><a href="#arenas">Arenas</a><a href="#controles">Controles</a><a href="#avisos">Avisos</a></nav>
-<div class="header-end"><span class="steam-status">Em breve na Steam</span><button class="creator-link account-button" id="account" type="button" disabled>Entrar</button><a class="creator-link" href="#criador">Criador <span aria-hidden="true">↘</span></a></div>
+<nav aria-label="Navegação"><a href="#jogo">Jogar</a><a href="#ranking">Ranking</a><a href="#arenas">Arenas</a><a href="#controles">Controles</a><a href="#avisos">Avisos</a></nav>
+<div class="header-notes"><span class="shoutout">El Gato, seu gostoso!</span><span class="steam-status">Em breve na Steam</span></div>
+<div class="header-end"><button class="creator-link account-button" id="account" type="button" disabled>Definir username</button><a class="creator-link" href="#criador">Criador <span aria-hidden="true">↘</span></a></div>
 </div></header>
 <main><div class="layout">
 <section class="player" id="jogo" aria-label="Jogar TECO!">
@@ -22,26 +23,64 @@
 <div class="player-bar"><div class="player-id"><img alt="" width="30" height="30" src="media/gude.png"><strong>TECO!</strong><span class="version">Web</span></div>
 <div class="actions"><a href="#controles">Controles</a><button id="full" aria-label="Alternar tela cheia" title="Tela cheia"><span aria-hidden="true">⛶</span></button></div></div>
 <p id="status" aria-live="polite" hidden></p></section>
-<aside id="arenas" aria-labelledby="arena-title"><h2 id="arena-title">As arenas</h2>
+<aside id="arenas" aria-labelledby="arena-title"><h2 id="arena-title">As 7 arenas</h2>
 <button class="scene" data-arena="calcada"><img src="media/calcada.webp" alt=""><strong>Calçada</strong></button>
 <button class="scene" data-arena="quadra"><img src="media/quadra.webp" alt=""><strong>Quadra</strong></button>
-<button class="scene" data-arena="praca"><img src="media/praca.webp" alt=""><strong>Praça à Noite</strong></button></aside>
+<button class="scene" data-arena="praca"><img src="media/praca.webp" alt=""><strong>Praça à Noite</strong></button>
+<p class="fine">E mais 4 no jogo: <strong>Terrão</strong>, <strong>Terreiro</strong> (Búlica), <strong>Rua de Pedra</strong> e <strong>Quintal de Cimento</strong>.</p></aside>
 </div>
-<div class="info"><section><h2>Na roda de giz</h2><p>Mire da risca, carregue o teco e tente tirar as bolinhas da roda. Jogue um racha contra a CPU, acerte os três buracos da Búlica ou monte sua coleção na Carreira.</p></section>
-<section id="controles"><h2>Como jogar</h2><dl><div><dt><kbd>A</kbd> <kbd>D</kbd></dt><dd>Mirar</dd></div><div><dt><kbd>Espaço</kbd></dt><dd>Segurar e soltar para atirar</dd></div><div><dt><kbd>C</kbd></dt><dd>Mudar a câmera</dd></div></dl>
+<section id="ranking" class="ranking-section" aria-labelledby="ranking-title">
+  <div class="ranking-head">
+    <div>
+      <h2 id="ranking-title">Ranking Global da Roda</h2>
+      <p class="ranking-sub">Compare os maiores colecionadores por <strong>dinheiro no cofre ($)</strong>, <strong>total de bolinhas</strong> ou <strong>coleção única</strong>.</p>
+    </div>
+    <div class="ranking-controls">
+      <div class="ranking-tabs" role="tablist" aria-label="Ordenar ranking">
+        <button type="button" class="rtab active" role="tab" aria-selected="true" data-rank-by="cash">Dinheiro ($)</button>
+        <button type="button" class="rtab" role="tab" aria-selected="false" data-rank-by="marbles">Total de bolinhas</button>
+        <button type="button" class="rtab" role="tab" aria-selected="false" data-rank-by="unique">Únicas</button>
+      </div>
+      <button type="button" id="ranking-refresh" class="ranking-btn" title="Atualizar ranking">↻ Atualizar</button>
+    </div>
+  </div>
+  <div id="ranking-me" class="ranking-me"></div>
+  <div id="ranking-podium" class="ranking-podium" hidden></div>
+  <div class="ranking-table-wrap">
+    <table class="ranking-table" aria-describedby="ranking-title">
+      <thead>
+        <tr>
+          <th class="col-pos">#</th>
+          <th class="col-user">Jogador</th>
+          <th class="col-num" data-col="cash">Dinheiro</th>
+          <th class="col-num" data-col="marbles">Bolinhas</th>
+          <th class="col-num" data-col="unique">Únicas</th>
+        </tr>
+      </thead>
+      <tbody id="ranking-body">
+        <tr><td colspan="5" class="ranking-empty">Carregando ranking…</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p id="ranking-foot" class="fine ranking-foot"></p>
+</section>
+<div class="info"><section><h2>Na roda de giz</h2><p>Mire da risca, carregue o teco e tente tirar as bolinhas da roda. Jogue um racha contra a CPU, dispute salas online por código (com 6 regras, 4 temperos e revanche na mesma sala), acerte os três buracos da Búlica ou monte sua coleção na Carreira.</p></section>
+<section id="controles"><h2>Como jogar</h2><dl><div><dt><kbd>A</kbd> <kbd>D</kbd></dt><dd>Mirar</dd></div><div><dt><kbd>Q</kbd> <kbd>E</kbd></dt><dd>Andar na risca</dd></div><div><dt><kbd>W</kbd> <kbd>S</kbd></dt><dd>Efeito (puxada / seguida)</dd></div><div><dt><kbd>Espaço</kbd></dt><dd>Segurar e soltar para atirar</dd></div><div><dt><kbd>C</kbd></dt><dd>Mudar a câmera</dd></div><div><dt><kbd>H</kbd> / <kbd>L</kbd></dt><dd>Ajuda e Histórico</dd></div></dl>
 <p class="fine">Use teclado e mouse ou controle.</p></section></div>
-<section id="avisos" class="notices"><h2>Avisos</h2><p>Como visitante, sua coleção fica neste navegador. Crie uma conta pelo nome e use “Vincular aparelho” para levar a carreira, a coleção e as preferências com você.</p><p>Para jogar com amigos, abra Online e crie uma sala. Compartilhe os seis dígitos com quem joga no site ou no Windows. O anfitrião escolhe a arena, as regras e até quatro lugares.</p></section>
+<section id="avisos" class="notices"><h2>Avisos</h2><p>Como visitante, sua coleção fica neste navegador. Crie uma conta pelo nome e use “Vincular aparelho” para levar a carreira, a coleção e as preferências com você.</p><p>Para jogar com amigos, abra Online e crie uma sala. Compartilhe os seis dígitos com quem joga no site ou no Windows. O anfitrião escolhe a arena, as regras e até quatro lugares — ao acabar a partida, todos podem continuar na mesma sala para revanche ou trocar as regras.</p></section>
 <footer id="criador"><div><h2>Criado por joaovitorhbo</h2><p>Novidades do TECO e contato com o criador.</p></div><div class="social"><a href="https://x.com/joaovitor_hbo" rel="me noopener noreferrer" target="_blank">X · @joaovitor_hbo ↗</a></div></footer>
 </main>
 <dialog id="gallery"><form method="dialog"><button aria-label="Fechar imagem" autofocus>×</button></form><img id="large" alt=""><h2 id="caption"></h2></dialog>
 <dialog id="account-panel" aria-labelledby="account-title">
   <form method="dialog" class="dialog-close"><button aria-label="Fechar">×</button></form>
-  <h2 id="account-title">Conta do TECO</h2>
+  <h2 id="account-title">Escolha seu username</h2>
   <form id="credentials">
-    <label>Nome de jogador<input name="player" autocomplete="username" required minlength="3" maxlength="24" pattern="[a-zA-Z0-9_]{3,24}" title="3 a 24 letras sem acento, números ou _"></label>
+    <p class="account-lead">Defina seu nome de jogador para entrar no <strong>Ranking Global</strong>, salvar sua coleção e aparecer nas salas online.</p>
+    <label>Username<input name="player" autocomplete="username" required minlength="3" maxlength="24" pattern="[a-zA-Z0-9_]{3,24}" placeholder="ex: rei_da_roda" title="3 a 24 letras sem acento, números ou _"></label>
     <label id="import-guest" hidden><input type="checkbox" name="importGuest" checked> Copiar meu progresso de visitante para esta conta</label>
-    <p class="account-hint">Escolha seu nome para jogar. Este navegador vai lembrar sua conta.</p>
-    <div class="account-actions"><button id="submit-account" type="submit">Continuar</button><button id="open-pair" type="button">Já jogo em outro aparelho</button></div>
+    <p class="account-hint">Sem senha complicada: este navegador guarda sua chave e você pode vincular outros aparelhos depois.</p>
+    <div class="account-actions"><button id="submit-account" type="submit">Salvar username e entrar</button><button id="open-pair" type="button">Já jogo em outro aparelho</button></div>
+    <button id="skip-account" class="account-skip" type="button">Continuar como visitante por enquanto</button>
   </form>
   <form id="pair-form" hidden><p>Abra sua conta no outro aparelho e toque em <strong>Vincular aparelho</strong>.</p><label>Código de vínculo<input name="code" required autocomplete="off" spellcheck="false" maxlength="19" placeholder="0000-0000-0000-0000"></label><div class="account-actions"><button>Vincular</button><button type="button" id="pair-back">Voltar</button></div></form>
   <div id="connected" hidden><p id="player-info"></p><div class="account-actions"><button type="button" id="sync-now">Sincronizar</button><button type="button" id="new-pair">Vincular aparelho</button><button type="button" id="logout">Sair da conta</button></div>
