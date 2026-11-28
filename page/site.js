@@ -48,6 +48,7 @@ async function openGame(previous) {
           || frame.contentDocument.querySelector('.footnote')?.textContent?.match(/v\d+\.\d+\.\d+/)?.[0];
         if (version) document.querySelector('.version').textContent = version;
         launcher.hidden = true;
+        stage.classList.add('playing');
         activeFrame=frame;
         frame.classList.remove('preparing');
         previous?.remove();
@@ -72,24 +73,62 @@ window.addEventListener('message',event=>{
   void openGame(activeFrame);
 });
 const full = document.querySelector('#full');
-if (!document.fullscreenEnabled) full.hidden = true;
-full.addEventListener('click', async () => {
-  try {
-    if (document.fullscreenElement) await document.exitFullscreen();
-    else await stage.requestFullscreen();
-  } catch {report('Este navegador não conseguiu abrir a tela cheia.');}
-});
-const gallery = document.querySelector('#gallery');
-for (const button of document.querySelectorAll('[data-arena]')) {
-  button.addEventListener('click', () => {
-    const name = button.querySelector('strong').textContent;
-    const image = document.querySelector('#large');
-    image.src = button.querySelector('img').src;
-    image.alt = 'Arena ' + name + ' no TECO!';
-    document.querySelector('#caption').textContent = name;
-    gallery.showModal();
-  });
+const exitFull = document.querySelector('#exit-full');
+const isCoarse = () => window.matchMedia?.('(pointer: coarse)').matches;
+
+function setMobileFull(on) {
+  stage.classList.toggle('mobile-full', on);
+  document.body.classList.toggle('is-mobile-full', on);
+  if (exitFull) exitFull.hidden = !on && !document.fullscreenElement;
 }
-gallery.addEventListener('click', event => {
-  if (event.target === gallery) gallery.close();
+
+function syncFullUi() {
+  const nativeOn = document.fullscreenElement === stage;
+  const mobileOn = stage.classList.contains('mobile-full');
+  if (exitFull) exitFull.hidden = !(nativeOn || mobileOn);
+  if (!nativeOn && !mobileOn) {
+    try { screen.orientation?.unlock?.(); } catch {}
+  }
+}
+
+document.addEventListener('fullscreenchange', syncFullUi);
+
+async function enterFullscreen() {
+  if (document.fullscreenEnabled && typeof stage.requestFullscreen === 'function') {
+    try {
+      await stage.requestFullscreen();
+      if (isCoarse()) {
+        try { await screen.orientation?.lock?.('landscape'); } catch {}
+      }
+      syncFullUi();
+      return;
+    } catch {
+      // iOS Safari e alguns navegadores mobile bloqueiam requestFullscreen em <div>; usa modo tela cheia CSS
+    }
+  }
+  setMobileFull(true);
+}
+
+async function leaveFullscreen() {
+  if (document.fullscreenElement) {
+    try { await document.exitFullscreen(); } catch {}
+  }
+  setMobileFull(false);
+  syncFullUi();
+}
+
+full?.addEventListener('click', () => {
+  if (document.fullscreenElement === stage || stage.classList.contains('mobile-full')) {
+    void leaveFullscreen();
+  } else {
+    void enterFullscreen();
+  }
+});
+
+exitFull?.addEventListener('click', () => {
+  void leaveFullscreen();
+});
+
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && stage.classList.contains('mobile-full')) void leaveFullscreen();
 });

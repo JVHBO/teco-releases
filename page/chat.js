@@ -1,8 +1,5 @@
 import { gameAccountName, openAccountModal, ready } from './account.js';
 
-const sideTabs = Array.from(document.querySelectorAll('[data-side-tab]'));
-const panelChat = document.querySelector('#panel-chat');
-const panelArenas = document.querySelector('#panel-arenas');
 const listEl = document.querySelector('#chat-list');
 const formEl = document.querySelector('#chat-form');
 const inputEl = document.querySelector('#chat-input');
@@ -33,20 +30,6 @@ function fmtTime(sec) {
 function formatText(raw) {
   return esc(raw).replace(/\b(\d{6})\b/g, '<button type="button" class="chat-code" data-copy-code="$1" title="Copiar código da sala">$1</button>');
 }
-
-// Alternância entre Chat da Roda e As 7 arenas no painel lateral
-sideTabs.forEach((btn) => {
-  btn.addEventListener('click', () => {
-    const tab = btn.dataset.sideTab;
-    sideTabs.forEach((b) => {
-      const on = b === btn;
-      b.classList.toggle('active', on);
-      b.setAttribute('aria-selected', on ? 'true' : 'false');
-    });
-    if (panelChat) panelChat.hidden = tab !== 'chat';
-    if (panelArenas) panelArenas.hidden = tab !== 'arenas';
-  });
-});
 
 let lastId = 0;
 let polling = false;
